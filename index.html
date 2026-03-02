@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scanner QR - Présences</title>
 
-  <!-- Import de la librairie html5-qrcode depuis unpkg -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <style>
@@ -66,24 +65,34 @@
   </main>
 
   <script>
-    // ⚠️ À ADAPTER : mets ici l'URL de ta Web App Apps Script (celle qui commence par https://script.google.com/macros/s/...)
+    // URL de ta Web App Apps Script (déploiement)
     const webAppUrl = "https://script.google.com/macros/s/AKfycbzotp0x1Uu34_tn0AtSKyvSOe79b9hkV6RVguWUpXncsaaMljbQms1U29PSJrBXDFX8lg/exec";
+
+    // On lit les paramètres arrivés (activite, session)
+    const params = new URLSearchParams(window.location.search);
+    const activiteParam = params.get("activite");
+    const sessionParam = params.get("session");
 
     const statusEl = document.getElementById("status");
     const restartBtn = document.getElementById("restart");
 
     function onScanSuccess(decodedText, decodedResult) {
-      // On arrête le scanner pour éviter plusieurs lectures
       statusEl.textContent = "Code détecté, redirection en cours...";
-      // Redirige vers ta Web App avec la valeur du QR en paramètre ?qr=
-      const url = webAppUrl + "?qr=" + encodeURIComponent(decodedText);
+
+      let url = webAppUrl + "?qr=" + encodeURIComponent(decodedText);
+
+      if (activiteParam) {
+        url += "&activite=" + encodeURIComponent(activiteParam);
+      }
+      if (sessionParam) {
+        url += "&session=" + encodeURIComponent(sessionParam);
+      }
+
       window.location.href = url;
     }
 
     function onScanFailure(error) {
-      // Erreurs de scan fréquentes, on les ignore pour ne pas spammer l'utilisateur
-      // Tu peux décommenter la ligne suivante pour déboguer :
-      // console.warn(error);
+      // Erreurs de scan fréquentes, on ignore
     }
 
     function startScanner() {
@@ -99,7 +108,6 @@
 
     restartBtn.addEventListener("click", startScanner);
 
-    // Démarrage initial du scanner
     startScanner();
   </script>
 </body>
